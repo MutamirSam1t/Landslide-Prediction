@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+</head>
+<body>
+    <h1>Prediction Results</h1>
+    <h2>Features</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feature, value in earth_engine_features.items() %}
+                <tr>
+                    <td>{{ feature }}</td>
+                    <td>
+                        {% if value is mapping %}
+                            {{ value | tojson }}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>Model Prediction: {{ prediction }}</h2>
+</body>
+</html>
