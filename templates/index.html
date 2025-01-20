@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Selection</title>
+    <!-- Include Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; width: 100%; }
+        .result-section {
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select a Location on the Map</h1>
+    <div id="map"></div>
+    
+    <form method="POST" id="locationForm">
+        <!-- Hidden fields for latitude and longitude -->
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+        <input type="submit" value="Submit Location">
+    </form>
+
+    {% if earth_engine_features %}
+        <div class="result-section">
+            <h2>Features and Prediction</h2>
+
+            <!-- Display Earth Engine Features -->
+            <h3>Fetched Earth Engine Features:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feature, value in earth_engine_features.items() %}
+                        <tr>
+                            <td>{{ feature }}</td>
+                            <td>
+                                {% if value is mapping %}
+                                    {{ value | tojson }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Display Model Prediction -->
+            <h3>Model Prediction:</h3>
+            <p><strong>{{ prediction }}</strong></p>
+
+            <!-- Display Logs -->
+            <h3>Logs:</h3>
+            <p><strong>{{ fetched_features_log }}</strong></p>
+            <p><strong>{{ input_values_log }}</strong></p>
+            <p><strong>{{ model_prediction_log }}</strong></p>
+        </div>
+    {% endif %}
+
+    <!-- Include Leaflet.js script -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered at a default location (for example, Dhaka)
+        var map = L.map('map').setView([23.8103, 90.4125], 13);  // Set default center (latitude, longitude)
+
+        // Add OpenStreetMap tiles to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a click event listener to the map
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            // Update the hidden input fields with the selected coordinates
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            // Optionally, add a marker at the clicked location
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("Selected Location: " + lat.toFixed(5) + ", " + lng.toFixed(5))
+                .openPopup();
+        });
+    </script>
+</body>
+</html>
